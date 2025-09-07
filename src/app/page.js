@@ -1,103 +1,265 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+
+const BASE_URL = "https://parallelum.com.br/fipe/api/v1";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [vehicleType, setVehicleType] = useState(null);
+  const [brands, setBrands] = useState([]);
+  const [models, setModels] = useState([]);
+  const [years, setYears] = useState([]);
+  const [form, setForm] = useState({ brand: "", model: "", year: "" });
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+  // Estado para controlar a visibilidade da aba flutuante
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  async function fetchData(url, setter) {
+    try {
+      setLoading(true);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Erro na API");
+      const data = await res.json();
+      setter(data.modelos || data);
+    } catch {
+      setError("Erro ao carregar dados. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function reset(level) {
+    if (level <= 1) setForm({ brand: "", model: "", year: "" });
+    if (level === 2) setForm((f) => ({ ...f, model: "", year: "" }));
+    if (level === 3) setForm((f) => ({ ...f, year: "" }));
+    setModels([]);
+    setYears([]);
+    setResult(null);
+    setIsModalOpen(false); // Fecha o modal ao resetar o formulário
+  }
+
+  async function handleFetchBrands(type) {
+    setVehicleType(type);
+    reset(1);
+    await fetchData(`${BASE_URL}/${type}/marcas`, setBrands);
+  }
+
+  async function handleFetchModels(brand) {
+    setForm((f) => ({ ...f, brand }));
+    reset(2);
+    await fetchData(
+      `${BASE_URL}/${vehicleType}/marcas/${brand}/modelos`,
+      setModels
+    );
+  }
+
+  async function handleFetchYears(model) {
+    setForm((f) => ({ ...f, model }));
+    reset(3);
+    await fetchData(
+      `${BASE_URL}/${vehicleType}/marcas/${form.brand}/modelos/${model}/anos`,
+      setYears
+    );
+  }
+
+  async function handleFetchValue() {
+    setError("");
+    setResult(null);
+    try {
+      setLoading(true);
+      const res = await fetch(
+        `${BASE_URL}/${vehicleType}/marcas/${form.brand}/modelos/${form.model}/anos/${form.year}`
+      );
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setResult(data);
+      setIsModalOpen(true); // Abre o modal ao ter um resultado
+    } catch {
+      setError("Erro ao consultar valor FIPE.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4 font-sans">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 sm:p-10 w-full max-w-2xl">
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-center text-slate-800 mb-4">
+          Consulta Tabela FIPE
+        </h1>
+        <p className="text-center text-slate-500 mb-8">
+          Selecione o tipo de veículo, marca, modelo e ano para consultar o valor médio.
+        </p>
+        
+        {/* Formulário */}
+        <div className="flex flex-col gap-6 mb-8">
+          {/* Etapa 1: Tipo */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              1. Tipo de Veículo
+            </label>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {[
+                { key: "carros", label: "Carros" },
+                { key: "motos", label: "Motos" },
+                { key: "caminhoes", label: "Caminhões" },
+              ].map((type) => (
+                <button
+                  key={type.key}
+                  onClick={() => handleFetchBrands(type.key)}
+                  className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ease-in-out ${
+                    vehicleType === type.key
+                      ? "bg-slate-800 text-white shadow-md transform scale-105"
+                      : "bg-gray-200 text-slate-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Marca, modelo e ano */}
+          <div className="space-y-6">
+            {/* Etapa 2: Marca */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                2. Marca
+              </label>
+              <select
+                value={form.brand}
+                onChange={(e) => handleFetchModels(e.target.value)}
+                disabled={!brands.length}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
+              >
+                <option value="">Selecione a marca...</option>
+                {brands.map((b) => (
+                  <option key={b.codigo} value={b.codigo}>
+                    {b.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Etapa 3: Modelo */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                3. Modelo
+              </label>
+              <select
+                value={form.model}
+                onChange={(e) => handleFetchYears(e.target.value)}
+                disabled={!models.length}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
+              >
+                <option value="">Selecione o modelo...</option>
+                {models.map((m) => (
+                  <option key={m.codigo} value={m.codigo}>
+                    {m.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Etapa 4: Ano */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                4. Ano
+              </label>
+              <select
+                value={form.year}
+                onChange={(e) => setForm((f) => ({ ...f, year: e.target.value }))}
+                disabled={!years.length}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
+              >
+                <option value="">Selecione o ano...</option>
+                {years.map((y) => (
+                  <option key={y.codigo} value={y.codigo}>
+                    {y.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Botão */}
+          <button
+            onClick={handleFetchValue}
+            disabled={!form.brand || !form.model || !form.year}
+            className="w-full py-3 px-6 rounded-xl font-bold text-white transition-all duration-200 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Consultar Valor
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Loading e Erro */}
+        {(loading || error) && (
+          <div className="flex flex-col items-center my-8">
+            {loading && (
+              <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+            )}
+            {error && (
+              <div className="text-red-500 font-semibold text-center mt-4">
+                {error}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Modal/Aba Flutuante com o resultado */}
+      {result && isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 transition-all duration-300 ease-in-out">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 w-full max-w-md relative">
+            {/* Botão de fechar */}
+            <button 
+              onClick={() => setIsModalOpen(false)} 
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              aria-label="Fechar"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <h3 className="text-xl font-bold mb-4 text-slate-800 text-center">
+              Resultado da Consulta
+            </h3>
+            <div className="space-y-2 text-slate-700">
+              <p>
+                <strong>Marca:</strong> {result.Marca}
+              </p>
+              <p>
+                <strong>Modelo:</strong> {result.Modelo}
+              </p>
+              <p>
+                <strong>Ano Modelo:</strong> {result.AnoModelo}
+              </p>
+              <p>
+                <strong>Combustível:</strong> {result.Combustivel}
+              </p>
+              <p>
+                <strong>Código FIPE:</strong> {result.CodigoFipe}
+              </p>
+              <p>
+                <strong>Mês de Referência:</strong> {result.MesReferencia}
+              </p>
+            </div>
+            <div className="text-center mt-6">
+                <p className="text-4xl font-extrabold text-slate-800 tracking-tight">
+                    {result.Valor}
+                </p>
+            </div>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="mt-6 w-full py-3 px-6 rounded-xl font-bold text-white transition-all duration-200 bg-slate-800 hover:bg-slate-700 transform hover:-translate-y-1"
+            >
+              Voltar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
