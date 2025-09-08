@@ -176,7 +176,7 @@ export default function Home() {
                 value={form.brand}
                 onChange={(e) => handleFetchModels(e.target.value)}
                 disabled={!brands.length}
-                className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-gray-400 focus:border-transparent transition-all duration-200"
+                className=" appearance-none w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-gray-400 focus:border-transparent transition-all duration-200"
               >
                 <option value="">Selecione a marca...</option>
                 {brands.map((b) => (
@@ -196,7 +196,7 @@ export default function Home() {
                 value={form.model}
                 onChange={(e) => handleFetchYears(e.target.value)}
                 disabled={!models.length}
-                className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-gray-400 focus:border-transparent transition-all duration-200"
+                className="appearance-none w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-gray-400 focus:border-transparent transition-all duration-200"
               >
                 <option value="">Selecione o modelo...</option>
                 {models.map((m) => (
@@ -218,7 +218,7 @@ export default function Home() {
                   setForm((f) => ({ ...f, year: e.target.value }))
                 }
                 disabled={!years.length}
-                className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-gray-400 focus:border-transparent transition-all duration-200"
+                className="appearance-none w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-gray-400 focus:border-transparent transition-all duration-200"
               >
                 <option value="">Selecione o ano...</option>
                 {years.map((y) => (
