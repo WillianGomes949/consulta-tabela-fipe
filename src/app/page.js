@@ -19,7 +19,9 @@ export default function Home() {
   // Detecta tema do navegador no client-side
   useEffect(() => {
     setMounted(true);
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     setTheme(prefersDark ? "dark" : "light");
   }, []);
 
@@ -79,7 +81,10 @@ export default function Home() {
   async function handleFetchModels(brand) {
     reset(2);
     setForm((f) => ({ ...f, brand }));
-    await fetchData(`${BASE_URL}/${vehicleType}/marcas/${brand}/modelos`, setModels);
+    await fetchData(
+      `${BASE_URL}/${vehicleType}/marcas/${brand}/modelos`,
+      setModels
+    );
   }
 
   async function handleFetchYears(model) {
@@ -116,28 +121,16 @@ export default function Home() {
   return (
     <div className="flex justify-center items-center min-h-screen p-4 font-sans bg-gray-100 dark:bg-gray-900 transition-colors">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 sm:p-10 w-full max-w-2xl">
-
-        {/* Botão de tema
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={toggleTheme}
-            className="px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-white dark:bg-gray-200 dark:text-gray-800 transition-all"
-          >
-            {theme === "light" ? "🌙 Modo Escuro" : "☀️ Modo Claro"}
-          </button>
-        </div> */}
-
-
         <h1 className="text-4xl sm:text-5xl font-extrabold text-center text-slate-800 dark:text-white mb-4">
           Consulta Tabela FIPE
         </h1>
         <p className="text-center text-slate-500 dark:text-slate-300 mb-8">
-          Selecione o tipo de veículo, marca, modelo e ano para consultar o valor médio.
+          Selecione o tipo de veículo, marca, modelo e ano para consultar o
+          valor médio.
         </p>
 
         {/* Formulário */}
         <div className="flex flex-col gap-6 mb-8">
-          
           {/* Etapa 1: Tipo */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -152,7 +145,7 @@ export default function Home() {
                 <button
                   key={type.key}
                   onClick={() => handleFetchBrands(type.key)}
-                  className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ease-in-out ${
+                  className={`focus:ring-4 focus:outline-none focus:ring-slate-600 flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 ease-in-out ${
                     vehicleType === type.key
                       ? "bg-slate-800 text-white shadow-md transform scale-105 dark:bg-gray-200 dark:text-gray-800"
                       : "bg-gray-200 text-slate-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-slate-200 dark:hover:bg-gray-600"
@@ -166,7 +159,6 @@ export default function Home() {
 
           {/* Marca, modelo e ano */}
           <div className="space-y-6">
-            
             {/* Marca */}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -234,7 +226,7 @@ export default function Home() {
           <button
             onClick={handleFetchValue}
             disabled={!form.brand || !form.model || !form.year}
-            className="w-full py-3 px-6 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1"
+            className="py-3 px-6 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1"
           >
             Consultar Valor
           </button>
@@ -259,7 +251,6 @@ export default function Home() {
       {result && isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 transition-all duration-300 ease-in-out">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 w-full max-w-md relative">
-            
             {/* Botão Fechar */}
             <button
               onClick={() => setIsModalOpen(false)}
@@ -286,12 +277,24 @@ export default function Home() {
               Resultado da Consulta
             </h3>
             <div className="space-y-2 text-slate-700 dark:text-slate-200">
-              <p><strong>Marca:</strong> {result.Marca}</p>
-              <p><strong>Modelo:</strong> {result.Modelo}</p>
-              <p><strong>Ano Modelo:</strong> {result.AnoModelo}</p>
-              <p><strong>Combustível:</strong> {result.Combustivel}</p>
-              <p><strong>Código FIPE:</strong> {result.CodigoFipe}</p>
-              <p><strong>Mês de Referência:</strong> {result.MesReferencia}</p>
+              <p>
+                <strong>Marca:</strong> {result.Marca}
+              </p>
+              <p>
+                <strong>Modelo:</strong> {result.Modelo}
+              </p>
+              <p>
+                <strong>Ano Modelo:</strong> {result.AnoModelo}
+              </p>
+              <p>
+                <strong>Combustível:</strong> {result.Combustivel}
+              </p>
+              <p>
+                <strong>Código FIPE:</strong> {result.CodigoFipe}
+              </p>
+              <p>
+                <strong>Mês de Referência:</strong> {result.MesReferencia}
+              </p>
             </div>
             <div className="text-center mt-6">
               <p className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">
