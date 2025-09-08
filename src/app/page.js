@@ -302,7 +302,7 @@ export default function Home() {
               </p>
             </div>
             <div>
-              <p className="p-4 content-center rounded-2xl mt-4 mb-4">Valor médio de referência. Deve ser usado como ponto de partida, e <strong>não como um valor absoluto.</strong> É fundamental considerar os fatores específicos do veículo e o mercado local para ter uma avaliação justa. </p>
+              <p className="p-4 content-center rounded-2xl mt-4 mb-4">Valor médio de referência. Deve ser usado como ponto de partida, e não como um valor absoluto. É fundamental considerar os fatores específicos do veículo e o mercado local para ter uma avaliação justa. </p>
             </div>
             <button
               onClick={() => setIsModalOpen(false)}
