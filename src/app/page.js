@@ -301,6 +301,9 @@ export default function Home() {
                 {result.Valor}
               </p>
             </div>
+            <div>
+              <p className="p-4 content-center rounded-2xl mt-4 mb-4">Valor médio de referência. Deve ser usado como ponto de partida, e <strong>não como um valor absoluto.</strong> É fundamental considerar os fatores específicos do veículo e o mercado local para ter uma avaliação justa. </p>
+            </div>
             <button
               onClick={() => setIsModalOpen(false)}
               className="mt-6 w-full py-3 px-6 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300 transition-all duration-200 transform hover:-translate-y-1"
