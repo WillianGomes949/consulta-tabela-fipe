@@ -30,24 +30,35 @@ export default function Home() {
   }
 
   function reset(level) {
-    if (level <= 1) setForm({ brand: "", model: "", year: "" });
-    if (level === 2) setForm((f) => ({ ...f, model: "", year: "" }));
-    if (level === 3) setForm((f) => ({ ...f, year: "" }));
+  if (level === 1) {
+    setForm({ brand: "", model: "", year: "" });
+    setBrands([]);
     setModels([]);
     setYears([]);
-    setResult(null);
-    setIsModalOpen(false); // Fecha o modal ao resetar o formulário
+  } else if (level === 2) {
+    setForm((f) => ({ ...f, model: "", year: "" }));
+    setModels([]); // ao trocar a marca, limpa modelos e anos
+    setYears([]);
+  } else if (level === 3) {
+    setForm((f) => ({ ...f, year: "" }));
+    setYears([]);  // ao trocar o modelo, limpa apenas anos
+    // >>> não limpe models aqui! <<<
   }
+  setResult(null);
+  setIsModalOpen(false);
+}
 
   async function handleFetchBrands(type) {
-    setVehicleType(type);
     reset(1);
+    setVehicleType(type);
+
     await fetchData(`${BASE_URL}/${type}/marcas`, setBrands);
   }
 
   async function handleFetchModels(brand) {
-    setForm((f) => ({ ...f, brand }));
     reset(2);
+    setForm((f) => ({ ...f, brand }));
+
     await fetchData(
       `${BASE_URL}/${vehicleType}/marcas/${brand}/modelos`,
       setModels
@@ -55,8 +66,9 @@ export default function Home() {
   }
 
   async function handleFetchYears(model) {
-    setForm((f) => ({ ...f, model }));
     reset(3);
+    setForm((f) => ({ ...f, model }));
+
     await fetchData(
       `${BASE_URL}/${vehicleType}/marcas/${form.brand}/modelos/${model}/anos`,
       setYears
@@ -89,9 +101,10 @@ export default function Home() {
           Consulta Tabela FIPE
         </h1>
         <p className="text-center text-slate-500 mb-8">
-          Selecione o tipo de veículo, marca, modelo e ano para consultar o valor médio.
+          Selecione o tipo de veículo, marca, modelo e ano para consultar o
+          valor médio.
         </p>
-        
+
         {/* Formulário */}
         <div className="flex flex-col gap-6 mb-8">
           {/* Etapa 1: Tipo */}
@@ -131,7 +144,7 @@ export default function Home() {
                 value={form.brand}
                 onChange={(e) => handleFetchModels(e.target.value)}
                 disabled={!brands.length}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
+                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
               >
                 <option value="">Selecione a marca...</option>
                 {brands.map((b) => (
@@ -151,7 +164,7 @@ export default function Home() {
                 value={form.model}
                 onChange={(e) => handleFetchYears(e.target.value)}
                 disabled={!models.length}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
+                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
               >
                 <option value="">Selecione o modelo...</option>
                 {models.map((m) => (
@@ -169,9 +182,11 @@ export default function Home() {
               </label>
               <select
                 value={form.year}
-                onChange={(e) => setForm((f) => ({ ...f, year: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, year: e.target.value }))
+                }
                 disabled={!years.length}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
+                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-200"
               >
                 <option value="">Selecione o ano...</option>
                 {years.map((y) => (
@@ -213,16 +228,27 @@ export default function Home() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 transition-all duration-300 ease-in-out">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 w-full max-w-md relative">
             {/* Botão de fechar */}
-            <button 
-              onClick={() => setIsModalOpen(false)} 
+            <button
+              onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200"
               aria-label="Fechar"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
-            
+
             <h3 className="text-xl font-bold mb-4 text-slate-800 text-center">
               Resultado da Consulta
             </h3>
@@ -247,9 +273,9 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center mt-6">
-                <p className="text-4xl font-extrabold text-slate-800 tracking-tight">
-                    {result.Valor}
-                </p>
+              <p className="text-4xl font-extrabold text-slate-800 tracking-tight">
+                {result.Valor}
+              </p>
             </div>
             <button
               onClick={() => setIsModalOpen(false)}
