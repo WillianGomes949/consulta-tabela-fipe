@@ -36,9 +36,6 @@ export default function Home() {
     }
   }, [theme, mounted]);
 
-  // --- LÓGICA DE DADOS (Atualizada) ---
-
-  // Função de reset (sem alterações)
   function reset(level) {
     if (level === 1) {
       setForm({ brand: "", model: "", year: "" });
@@ -58,7 +55,6 @@ export default function Home() {
     setError("");
   }
 
-  // Handlers de fetch atualizados para usar 'fetchFipeData'
   async function handleFetchBrands(type) {
     reset(1);
     setVehicleType(type);
@@ -125,7 +121,6 @@ export default function Home() {
     }
   }
 
-  // --- RENDERIZAÇÃO ---
   if (!mounted) return null;
 
   return (
@@ -148,9 +143,9 @@ export default function Home() {
           loading={loading}
           error={error}
           onTypeChange={handleFetchBrands}
-          onBrandChange={handleFetchModels} // Passa o handler direto
-          onModelChange={handleFetchYears} // Passa o handler direto
-          onYearChange={(yearCode) => setForm((f) => ({ ...f, year: yearCode }))} // Passa o handler direto
+          onBrandChange={handleFetchModels} 
+          onModelChange={handleFetchYears} 
+          onYearChange={(yearCode) => setForm((f) => ({ ...f, year: yearCode }))}
           onSubmit={handleFetchValue}
         />
       </div>
